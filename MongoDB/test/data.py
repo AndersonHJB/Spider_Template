@@ -49,12 +49,9 @@ if __name__ == '__main__':
     #     "age": 19,
     #     "school": "CHINA"
     # }
-    # for d in generate_data():
-    #     write_mongodb(db_name="one_day", 
-    #         table_name="table_day", 
-    #         insert_data=d)
-    write_mongodb(
-        db_name="one_day", 
-        table_name="table_day", 
-        insert_data=generate_data())
+    for d in generate_data():
+        write_mongodb(db_name="20220506-four", 
+            table_name="day", 
+            insert_data=d)
+
 
