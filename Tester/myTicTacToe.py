@@ -1,7 +1,7 @@
 import random
 
 """
-Author: Ka Wai Lau
+Author: Jeffery Raphael
 Date: May 2021
 Version: 3.4
 
@@ -19,7 +19,8 @@ TRAINING_MODE = 5
 PLAYING_MODE = 6
 
 # Set random number seed here
-random.seed(20021007)
+random.seed(102450)
+
 
 
 def createPlayer(letter, playerType=RANDOM_AGENT):
@@ -451,9 +452,9 @@ class RLPlayer(Player):
 
         super().__init__(letter, playerType)
 
-        self.learningRate = 0.0
-        self.discountRate = 0.0
-        self.epsilon = 0.0
+        self.learningRate = 0
+        self.discountRate = 0
+        self.epsilon = 0
         self.valueFunction = {}
         self.previousState = None
         self.mode = PLAYING_MODE
@@ -506,24 +507,20 @@ class RLPlayer(Player):
 
         # *** NOT IMPLEMENTED YET!! ***
 
-        if self.getMode() == TRAINING_MODE:
-            n = random.uniform(0, 1)
-
+        if self.getMode() is TRAINING_MODE:
+            n = random.random()
             if n < self.epsilon:
                 anyMove = random.choice(board.remainingMoves)
                 moveLegal = board.makeMove(anyMove, self.letter)
-
                 if not moveLegal:
                     print('*** WARNING ILLEGAL MOVE BY RL ***')
-
-                else:
-                    # self.getMove(board)
-                    self.getRLMove(board)
-                self.rewardState(board, self.previousState)
-                self.previousState = board.copy()
-
             else:
                 self.getRLMove(board)
+            self.rewardState(board, self.previousState)
+            self.previousState = board.copy()
+        else:
+            self.getRLMove(board)
+
 
     def rewardState(self, board, prevBoard=None):
         """
@@ -536,7 +533,6 @@ class RLPlayer(Player):
         """
 
         # *** NOT IMPLEMENTED YET!! ***
-
         if prevBoard is None:
             reward = self.getReward(board)
             key = board.getKey(self.letter)
@@ -546,11 +542,10 @@ class RLPlayer(Player):
             reward = self.getReward(board)
             key = board.getKey(self.letter)
             value = self.valueOfState(key)
-
             keyPrev = prevBoard.getKey(self.letter)
             valuePrev = self.valueOfState(keyPrev)
-            self.valueFunction[keyPrev] = valuePrev + self.learningRate * (
-                    reward + (self.discountRate * value) - valuePrev)
+            self.valueFunction[keyPrev] = valuePrev + self.learningRate * (reward + (self.discountRate * value) - valuePrev)
+
 
     def getRLMove(self, board):
         """
@@ -612,13 +607,15 @@ class RLPlayer(Player):
         """
 
         # *** NOT IMPLEMENTED YET!! ***
-
         if board.getWinner() is None:
-            return 5
+            return 0.5
         elif board.getWinner().letter == self.letter:
-            return 10
+            return 1
         else:
             return 0
+
+
+        return 0
 
 
 class MINIPlayer(Player):
@@ -638,6 +635,7 @@ class MINIPlayer(Player):
         """
 
         super().__init__(letter, playerType)
+
 
     def makeMove(self, board):
         """
@@ -665,10 +663,10 @@ class MINIPlayer(Player):
         """
 
         # *** NOT IMPLEMENTED YET!! ***
-
         children = board.remainingMoves
         bestScore = -999
         bestMove = None
+
 
         for move in children:
             copyBoard = board.copy()
@@ -694,13 +692,11 @@ class MINIPlayer(Player):
         """
 
         # *** NOT IMPLEMENTED YET!! ***
-
         if board.isGameOver():
             return self.scoreGame(board)
 
         children = board.remainingMoves
         scores = []
-
         for move in children:
             copyBoard = board.copy()
             if maximiser:
@@ -709,10 +705,8 @@ class MINIPlayer(Player):
                 copyBoard.makeMove(move, self.letter)
             score = self.minimaxHelper(copyBoard, not maximiser)
             scores.append(score)
-
         if maximiser:
             return max(scores)
-
         return min(scores)
 
     def scoreGame(self, board):
@@ -725,18 +719,13 @@ class MINIPlayer(Player):
         :type board: TicTacToe
         :return: Integer
         """
-
         # *** NOT IMPLEMENTED YET!! ***
-
         if board.getWinner() is None:
             return 0
-
         if board.getWinner().letter == self.letter:
             return 10
-
         if board.getWinner().letter == self.opponent:
             return -10
-
         return 0
 
 
@@ -924,10 +913,11 @@ class Tournament:
 def playWithMinMaxPlayer():
     '''
     Call this method to start a match with The WithMinMaxPlayer.
+    :return:
     '''
     # Players
     player1 = createPlayer('X', MINIMAX_AGENT)
-    player1.name = 'Amy'
+    player1.name = 'Alice'
 
     player2 = createPlayer('O', HUMAN_AGENT)
     player2.name = "Bob"
@@ -945,35 +935,7 @@ def playWithMinMaxPlayer():
         print(f'Congratulations {winner.name}')
 
 
-import TicTacToe as ttt
-
-
-def main():
-    # Players
-    rlAgent = ttt.createPlayer('X', ttt.RL_AGENT)
-    rlAgent.name = 'Alice'
-
-    partner = ttt.createPlayer('O', ttt.RANDOM_AGENT)
-    partner.name = "Random"
-
-    # Training Session
-    rlAgent.initTraining(0.01, 0.12, 0.3)
-    ttt.train(rlAgent, partner, 50000)
-
-    # Evaluation
-    rlAgent.setMode(ttt.PLAYING_MODE)
-    tournament = ttt.Tournament()
-    tournament.start(rlAgent, partner, 5)
-    tournament.start(partner, rlAgent, 5)
-    tournament.printStats([rlAgent, partner])
-
-
-# main()
-
-
-# playWithMinMaxPlayer()
-
-def main(lr, dr, e):
+def RLP_train(lr, dr, e):
     '''
     This method trains and validates the RLPlayer. The learning rate,
     Discount rate, Epsilon are set to 0.1, 1, 0.2 (non-optimal setting).
@@ -982,7 +944,7 @@ def main(lr, dr, e):
         Random 3W 7L 0D 1169.96
     :return:
     '''
-    # Players
+    #Players
 
     rlAgent = createPlayer('X', RL_AGENT)
     rlAgent.name = 'RL'
@@ -1004,5 +966,27 @@ def main(lr, dr, e):
 
 
 if __name__ == "__main__":
-    # playWithMinMaxPlayer()
-    main(0.1, 1, 0.2)
+    #playWithMinMaxPlayer()
+    RLP_train(0.1, 1, 0.2)
+
+# import TicTacToe as ttt
+# def main():
+#     # Players
+#     rlAgent = ttt.createPlayer('X', ttt.RL_AGENT)
+#     rlAgent.name = 'Alice'
+#
+#     partner = ttt.createPlayer('O', ttt.RANDOM_AGENT)
+#     partner.name = "Random"
+#
+#     # Training Session
+#     rlAgent.initTraining(0.1, 1, 0.2)
+#     ttt.train(rlAgent, partner, 5000)
+#
+#     # Evaluation
+#     rlAgent.setMode(ttt.PLAYING_MODE)
+#     tournament = ttt.Tournament()
+#     tournament.start(rlAgent, partner, 5)
+#     tournament.start(partner, rlAgent, 5)
+#     tournament.printStats([rlAgent, partner])
+#
+# main()
