@@ -2,7 +2,7 @@
 # @Author: AI悦创
 # @Date:   2022-05-19 11:40:50
 # @Last Modified by:   aiyc
-# @Last Modified time: 2022-05-19 19:24:13
+# @Last Modified time: 2022-05-20 11:28:48
 import os, time
 
 def parse_path(path):
@@ -17,6 +17,8 @@ def parse_path(path):
 				# print(file_path)
 				return path
 
+def generate_html():
+	pass
 def split_movie(path, movie_name="Defualt"):
 	# os.system("cd result")
 	os.chdir("result")  # 指定输出路径
