@@ -33,7 +33,7 @@ from urllib.parse import urljoin  # 用来 URL 的拼接
 logging.basicConfig(level=logging.INFO,
                     format="%(asctime)s - %(levelname)s: %(message)s")
 
-BASE_URL = "https://static1.scrape.center/"
+BASE_URL = "https://static1.scrape.center"
 TOTAL_PAGE = 10
 
 # 1
@@ -68,3 +68,11 @@ def parse_index(html):
         logging.info("get detail url %s", detail_url)
         yield detail_url
 
+def main():
+    for page in range(1, TOTAL_PAGE + 1):
+        index_html = scrape_index(page)
+        detail_urls = parse_index(index_html)
+        logging.info("detail urls %s", list(detail_urls))
+
+if __name__ == '__main__':
+    main()
