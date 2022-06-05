@@ -28,14 +28,6 @@ import re  # re 用来实现正则表达式解析
 import pymongo  # 用来数据存储
 from pyquery import PyQuery as pq  # 用来直接解析网页
 from urllib.parse import urljoin  # 用来 URL 的拼接
-from inster_data_function import write_mongodb
-
-# --------
-# from bs4 import BeautifulSoup
-
-CLIENT = pymongo.MongoClient(host="localhost", port=27017)
-db = CLIENT["Movies"]
-collection = db["Movies"]
 
 # logging 教程待写
 logging.basicConfig(level=logging.INFO,
@@ -44,7 +36,6 @@ logging.basicConfig(level=logging.INFO,
 BASE_URL = "https://static1.scrape.center"
 TOTAL_PAGE = 10
 
-
 # 1
 def scrape_page(url):
     """
@@ -52,7 +43,7 @@ def scrape_page(url):
     :param url:
     :return: response.text >>> HTML
     """
-    # logging.info("scraping %s...", url)
+    logging.info("scraping %s...", url)
     try:
         response = requests.get(url)
         if response.status_code == 200:
@@ -61,12 +52,10 @@ def scrape_page(url):
     except requests.RequestException:
         logging.error("error occurred while scraping %s", url, exc_info=True)
 
-
 # 2
 def scrape_index(page):
     index_url = f"{BASE_URL}/page/{page}"  # 构造链接
     return scrape_page(index_url)  # 直接取抓取
-
 
 # 3
 def parse_index(html):
@@ -74,97 +63,16 @@ def parse_index(html):
     links = doc(".el-card .name")
     for link in links.items():
         href = link.attr("href")
-        # print("href:", href)
         detail_url = urljoin(BASE_URL, href)
         # detail_url = "https://static1.scrape.center" + href # 不推荐
-        # logging.info("get detail url %s", detail_url)
+        logging.info("get detail url %s", detail_url)
         yield detail_url
-
-
-# 4 请求详情页
-def scrape_details(url):
-    return scrape_page(url)
-
-
-def parse_details(html):
-    # soup = BeautifulSoup(html, "lxml")
-    # img_link = soup.select(".el-col .cover")
-    #
-    # print(img_link)
-    doc = pq(html)
-    # 1. 电影图片
-    img_cover = doc('img.cover').attr("src")
-    # 2. 电影名称
-    # name = doc("a h2")
-    name = doc("a > h2").text()
-    # 3. 电影标签
-    categories = [item.text() for item in doc(".categories button span").items()]
-    # 4. 上映时间
-    # published_at = [item.text() for item in doc(".info span").items()]
-    # published_at = "".join(published_at)
-    published_at = doc(".info:contains(上映)").text()
-    # 1993-07-26 上映
-    # re
-    published_at = re.search('(\d{4}-\d{2}-\d{2})', published_at).group(1) \
-        if published_at and re.search('\d{4}-\d{2}-\d{2}', published_at) else None
-    # 与上面的代码等价
-    # if published_at and re.search('\d{4}-\d{2}-\d{2}', published_at):
-    #     published_at = re.search('(\d{4}-\d{2}-\d{2})', published_at).group(1)
-    # else:
-    #     published_at = None
-    # 5. 剧情简介
-    drama = doc(".drama p").text()
-    # 6. 评分
-    score = doc("p.score").text()
-    # 转换数据类型
-    # if score:
-    #     score = float(score)
-    # else:
-    #     score = None
-    score = float(score) if score else None
-    # print(img_cover)
-    # print(name)
-    # print(categories, type(categories))
-    # print(published_at)
-    # print(drama)
-    # print(score)
-    return {
-        "img_cover": img_cover,
-        "name": name,
-        "categories": categories,
-        "published_at": published_at,
-        "drama": drama,
-        "score": score,
-    }
-
-
-def save_data(data):
-    collection.update_one({
-        'name': data.get('name'),
-    }, {
-        '$set': data
-    }, upsert=True)
-
-def save_data_two(data):
-    write_mongodb(
-        db_name="Movie_two",
-        table_name="Movie_two",
-        insert_data=data
-    )
 
 def main():
     for page in range(1, TOTAL_PAGE + 1):
         index_html = scrape_index(page)
         detail_urls = parse_index(index_html)
-        # logging.info("detail urls %s", list(detail_urls)
-        for url in detail_urls:
-            html = scrape_details(url)
-            data = parse_details(html)
-            print(data)
-            save_data(data)
-            save_data_two(data)
-
-
+        logging.info("detail urls %s", list(detail_urls))
 
 if __name__ == '__main__':
     main()

@@ -1,10 +1,1 @@
-import util
-times = 1
-print('你好，我是聊天机器人-小象宝宝。\n有人说我有10岁人类的智商，你想试试吗？\n我可以回答你3个问题，来吧。')
-while True:
-    me = input('第{}个问题：'.format(times))
-    print('小象宝宝：' + util.talk(me))
-    if me == '再见' or times >= 3:
-        print('小象宝宝：我要走了，祝你学得快乐，再见！')
-        break
-    times += 1
+https://bj29.cn-beijing.data.alicloudccp.com/ChWXcBlb%2F1162502%2F62987c34aa01682f18124449b185dbcdef5c562c%2F62987c347082c57e2ace409e90d77810d8d02059?partNumber=10&uploadId=0A32C6EAE56E4DCD9FD4BDAD8D406F81&x-oss-access-key-id=LTAI5t8sJLSvMtxoes9pGyTv&x-oss-expires=1654164036&x-oss-signature=m9Q81UvC0lT2BLA5Wt%2BYVEopropVw5UuKzHNgVnxnGw%3D&x-oss-signature-version=OSS2
